@@ -71,12 +71,14 @@ app.use('/api/*', (req, res) => {
 // Global Error Handler
 app.use(errorHandler);
 
-// Initialize DB and start server
-connectDatabase().then((dbResult) => {
+// Initialize DB
+connectDatabase();
+
+// Only listen directly if not running on Vercel
+if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`🚀 HEALTHGUARD AI Enterprise Server listening on http://localhost:${PORT}`);
-    console.log(`📊 Database Mode: ${dbResult.mode} (${dbResult.connected ? 'MongoDB Active' : 'Persistent JSON Active'})`);
   });
-});
+}
 
 export default app;
