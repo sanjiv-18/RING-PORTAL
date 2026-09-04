@@ -30,8 +30,8 @@
     }
   ],
   "simulationState": {
-    "activePreset": "heat_stress",
-    "lastUpdated": "2026-09-04T12:22:27.031Z"
+    "activePreset": "hr_increase",
+    "lastUpdated": "2026-09-04T12:34:15.073Z"
   },
   "healthReading": {
     "heartRate": 108,
@@ -121,15 +121,15 @@
       "name": "Sanjiv Venkat",
       "age": 34,
       "gender": "Male",
-      "heartRate": 108,
-      "spO2": 94,
-      "temp": 38.4,
-      "hydration": 42,
-      "riskLevel": "High",
-      "heatStress": 87,
-      "healthScore": 58,
+      "heartRate": 124,
+      "spO2": 97,
+      "temp": 36.8,
+      "hydration": 78,
+      "riskLevel": "Moderate",
+      "heatStress": 18,
+      "healthScore": 62,
       "lastActive": "2m ago",
-      "alert": "CRITICAL Heat Stress (41°C / 108 BPM)"
+      "alert": "⌚ Wearable HR Spike: 124 BPM"
     },
     {
       "id": "PAT-102",
@@ -181,6 +181,94 @@
     }
   ],
   "alerts": [
+    {
+      "id": "alt_1788525255078",
+      "userId": "usr_sanjiv",
+      "category": "Wearable Telemetry",
+      "type": "warning",
+      "title": "⌚ Tachycardia Warning Detected by Smart Wearable",
+      "message": "Resting heart rate surged to 124 BPM while stationary.",
+      "status": "ACTIVE",
+      "source": "Optical PPG Wearable Sensor",
+      "timestamp": "2026-09-04T12:34:15.078Z"
+    },
+    {
+      "id": "alt_1788524610881",
+      "userId": "usr_sanjiv",
+      "category": "Recovery",
+      "type": "success",
+      "title": "🟢 Health Indicators Returned to Baseline",
+      "message": "All vital telemetry and risk indices returned to normal benchmark.",
+      "status": "RESOLVED",
+      "source": "Edge AI Engine",
+      "timestamp": "2026-09-04T12:23:30.881Z"
+    },
+    {
+      "id": "alt_1788524604198",
+      "userId": "usr_sanjiv",
+      "category": "Recovery",
+      "type": "success",
+      "title": "🟢 Health Indicators Returned to Baseline",
+      "message": "All vital telemetry and risk indices returned to normal benchmark.",
+      "status": "RESOLVED",
+      "source": "Edge AI Engine",
+      "timestamp": "2026-09-04T12:23:24.198Z"
+    },
+    {
+      "id": "alt_1788524601983",
+      "userId": "usr_sanjiv",
+      "category": "Recovery",
+      "type": "success",
+      "title": "🟢 Health Indicators Returned to Baseline",
+      "message": "All vital telemetry and risk indices returned to normal benchmark.",
+      "status": "RESOLVED",
+      "source": "Edge AI Engine",
+      "timestamp": "2026-09-04T12:23:21.983Z"
+    },
+    {
+      "id": "alt_1788524600142",
+      "userId": "usr_sanjiv",
+      "category": "Environmental",
+      "type": "critical",
+      "title": "🔥 Heat-Stress Risk Increased",
+      "message": "High temperature (41°C) & elevated HR (108 BPM) recorded for user Sanjiv.",
+      "status": "ACTIVE",
+      "source": "AI Predictive Engine",
+      "timestamp": "2026-09-04T12:23:20.142Z"
+    },
+    {
+      "id": "alt_1788524598671",
+      "userId": "usr_sanjiv",
+      "category": "Environmental",
+      "type": "warning",
+      "title": "🌫️ Hazardous AQI Warning",
+      "message": "Air Quality Index reached hazardous level (215 AQI).",
+      "status": "ACTIVE",
+      "source": "AQI Sensor Feed",
+      "timestamp": "2026-09-04T12:23:18.671Z"
+    },
+    {
+      "id": "alt_1788524593563",
+      "userId": "usr_sanjiv",
+      "category": "Environmental",
+      "type": "warning",
+      "title": "🌫️ Hazardous AQI Warning",
+      "message": "Air Quality Index reached hazardous level (215 AQI).",
+      "status": "ACTIVE",
+      "source": "AQI Sensor Feed",
+      "timestamp": "2026-09-04T12:23:13.563Z"
+    },
+    {
+      "id": "alt_1788524592322",
+      "userId": "usr_sanjiv",
+      "category": "Environmental",
+      "type": "critical",
+      "title": "🔥 Heat-Stress Risk Increased",
+      "message": "High temperature (41°C) & elevated HR (108 BPM) recorded for user Sanjiv.",
+      "status": "ACTIVE",
+      "source": "AI Predictive Engine",
+      "timestamp": "2026-09-04T12:23:12.322Z"
+    },
     {
       "id": "alt_1788524547035",
       "userId": "usr_sanjiv",
@@ -317,57 +405,47 @@
   },
   "health_readings": {
     "userId": "usr_sanjiv",
-    "heartRate": 108,
-    "heartRateChange": "+23% above baseline",
-    "spO2": 94,
-    "spO2Change": "-3% below normal",
-    "temp": 38.4,
-    "tempChange": "Elevated (+1.2°C)",
-    "hydration": 42,
-    "hydrationChange": "Low (-36%)",
-    "activity": 8420,
+    "heartRate": 124,
+    "heartRateChange": "+42% Tachycardia spike",
+    "spO2": 97,
+    "spO2Change": "Optimal",
+    "temp": 36.8,
+    "tempChange": "Normal",
+    "hydration": 78,
+    "hydrationChange": "Good",
+    "activity": 6240,
     "sleep": "7h 20m",
-    "healthScore": 58,
-    "statusText": "Moderate heat-stress risk detected",
+    "healthScore": 62,
+    "statusText": "Sudden Heart Rate Elevation (124 BPM)",
     "statusSeverity": "warning",
-    "updatedAt": "2026-09-04T12:22:27.032Z"
+    "updatedAt": "2026-09-04T12:34:15.074Z"
   },
   "environmental_readings": {
-    "outsideTemp": 41,
-    "humidity": 78,
-    "aqi": 215,
-    "uvIndex": 8,
-    "heatIndex": 48,
-    "weatherCondition": "Extreme Heatwave",
-    "pollutionLevel": "Hazardous Smog",
+    "outsideTemp": 32,
+    "humidity": 55,
+    "aqi": 65,
+    "uvIndex": 4,
+    "heatIndex": 33,
+    "weatherCondition": "Pleasant & Warm",
+    "pollutionLevel": "Good",
     "zone": "Sector 4, Central Urban Hub",
-    "updatedAt": "2026-09-04T12:22:27.032Z"
+    "updatedAt": "2026-09-04T12:23:30.877Z"
   },
   "risk_assessments": {
-    "overallScore": 100,
-    "riskLevel": "HIGH RISK",
-    "confidenceScore": 89,
-    "heatStress": 100,
-    "dehydration": 80,
-    "respiratory": 81,
-    "cardiac": 51,
-    "fatigue": 74,
-    "whyText": "CRITICAL: High temperature (41°C) + Elevated Heart Rate (108 BPM) + Low Hydration (42%) detected. Rapid thermal accumulation present.",
+    "overallScore": 71,
+    "riskLevel": "MODERATE RISK",
+    "confidenceScore": 92,
+    "heatStress": 71,
+    "dehydration": 20,
+    "respiratory": 22,
+    "cardiac": 77,
+    "fatigue": 56,
+    "whyText": "Elevated heat-stress & physiological strain: Heart rate (124 BPM) is above personal baseline while environmental temperature (32°C) and humidity (55%) are elevated.",
     "contributingFactors": [
-      "Heart rate is elevated (108 BPM, +20 BPM above personal baseline)",
-      "High ambient temperature (41°C) with elevated heat index (48°C)",
-      "High atmospheric humidity (78%) restricting natural evaporative cooling",
-      "Low hydration status (42%) indicating cellular fluid depletion",
-      "Unhealthy particulate air quality (215 AQI) causing respiratory strain"
+      "Heart rate is elevated (124 BPM, +36 BPM above personal baseline)",
+      "High autonomic stress index (78/100) detected via wearable sensor"
     ],
     "recommendedActions": [
-      {
-        "id": "rec_1",
-        "action": "Hydrate Immediately",
-        "text": "Drink 750ml electrolyte solution or chilled water",
-        "icon": "Droplets",
-        "priority": "High"
-      },
       {
         "id": "rec_2",
         "action": "Cooling Shelter",
@@ -377,9 +455,9 @@
       },
       {
         "id": "rec_3",
-        "action": "Rest Period",
-        "text": "Rest for 15-20 minutes with light elevation and cold compress",
-        "icon": "Moon",
+        "action": "Rest & Parasympathetic Recovery",
+        "text": "Initiate 10 minutes of slow box breathing and reduce physical exertion",
+        "icon": "HeartPulse",
         "priority": "Medium"
       }
     ],
@@ -388,13 +466,31 @@
   "admin_stats": {
     "totalUsers": 1248,
     "activeUsers": 842,
-    "highRiskUsers": 38,
-    "heatAlerts": 85,
-    "respiratoryAlerts": 52,
+    "highRiskUsers": 40,
+    "heatAlerts": 87,
+    "respiratoryAlerts": 54,
     "sosEvents": 6,
     "totalDoctors": 42
   },
   "notifications": [
+    {
+      "id": "notif_1788524600143",
+      "recipientId": "usr_sanjiv",
+      "category": "Critical",
+      "title": "🔥 Heat Stress Alert",
+      "message": "Extreme heat risk (41°C / 108 BPM) detected. Take immediate shelter.",
+      "read": false,
+      "createdAt": "2026-09-04T12:23:20.143Z"
+    },
+    {
+      "id": "notif_1788524592322",
+      "recipientId": "usr_sanjiv",
+      "category": "Critical",
+      "title": "🔥 Heat Stress Alert",
+      "message": "Extreme heat risk (41°C / 108 BPM) detected. Take immediate shelter.",
+      "read": false,
+      "createdAt": "2026-09-04T12:23:12.322Z"
+    },
     {
       "id": "notif_1788524547036",
       "recipientId": "usr_sanjiv",
@@ -434,6 +530,20 @@
   ],
   "audit_logs": [
     {
+      "id": "aud_1788524600144",
+      "timestamp": "2026-09-04T12:23:20.144Z",
+      "actor": "Demo Simulation Engine",
+      "action": "Simulate Heat Stress triggered",
+      "details": "Vitals: 41°C, 108 BPM, 78% humidity. Risk: 87/100 High"
+    },
+    {
+      "id": "aud_1788524592323",
+      "timestamp": "2026-09-04T12:23:12.323Z",
+      "actor": "Demo Simulation Engine",
+      "action": "Simulate Heat Stress triggered",
+      "details": "Vitals: 41°C, 108 BPM, 78% humidity. Risk: 87/100 High"
+    },
+    {
       "id": "aud_1788524547037",
       "timestamp": "2026-09-04T12:22:27.037Z",
       "actor": "Demo Simulation Engine",
@@ -461,5 +571,29 @@
       "action": "Local baseline model calibration checked",
       "details": "30-day baseline benchmark OK"
     }
-  ]
+  ],
+  "wearable_readings": {
+    "userId": "usr_sanjiv",
+    "deviceId": "dev_apple_watch",
+    "deviceName": "Apple Watch Ultra 2",
+    "heartRate": 124,
+    "spo2": 98,
+    "temperature": 36.8,
+    "steps": 8500,
+    "calories": 620,
+    "stressLevel": "High",
+    "stressScore": 78,
+    "activityLevel": "Moderate",
+    "hrv": 38,
+    "sleepData": {
+      "duration": "7h 20m",
+      "qualityScore": 85,
+      "deepSleepMinutes": 110,
+      "remSleepMinutes": 95,
+      "lightSleepMinutes": 235,
+      "awakeMinutes": 20
+    },
+    "fallDetected": false,
+    "timestamp": "2026-09-04T12:34:15.075Z"
+  }
 }

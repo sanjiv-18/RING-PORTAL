@@ -4,7 +4,7 @@ import {
   ShieldCheck, HeartPulse, Sparkles, CloudRain, AlertTriangle, 
   BarChart3, Droplets, Sliders, PhoneCall, Bell, Shield, User, 
   Stethoscope, Settings, ChevronLeft, ChevronRight, Menu, X, 
-  Wifi, WifiOff, Lock
+  Watch, Activity, Radio
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -15,14 +15,19 @@ export const Sidebar = () => {
     adminTab, setAdminTab,
     notifications,
     vitals,
+    devices,
     isBackendConnected
   } = useHealth();
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const connectedCount = devices.filter(d => d.connectionStatus === 'CONNECTED').length;
+
   const mainNavItems = [
     { id: 'dashboard', label: 'Overview', icon: HeartPulse },
+    { id: 'devices', label: 'Connected Devices', icon: Watch, badge: connectedCount ? `${connectedCount} Active` : null },
+    { id: 'wearables', label: 'Wearable Analytics', icon: Activity },
     { id: 'ai_analysis', label: 'AI Analysis', icon: Sparkles },
     { id: 'environment', label: 'Environment', icon: CloudRain },
     { id: 'disaster', label: 'Alerts & Safety', icon: AlertTriangle },
@@ -84,7 +89,7 @@ export const Sidebar = () => {
             {!collapsed && (
               <div>
                 <h1 className="font-extrabold text-sm text-white tracking-wide">HEALTHGUARD <span className="text-teal-400">AI</span></h1>
-                <p className="text-[10px] text-slate-400">Pro Healthcare Platform</p>
+                <p className="text-[10px] text-slate-400">IoT & Healthcare Platform</p>
               </div>
             )}
           </div>
@@ -124,8 +129,12 @@ export const Sidebar = () => {
                   <Icon className="w-4 h-4 shrink-0" />
                   {!collapsed && <span className="truncate">{item.label}</span>}
                   {!collapsed && item.badge && (
-                    <span className={`ml-auto px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                      item.id === 'emergency' ? 'bg-red-500 text-white animate-pulse' : 'bg-teal-500/20 text-teal-300'
+                    <span className={`ml-auto px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                      item.id === 'emergency' 
+                        ? 'bg-red-500 text-white animate-pulse' 
+                        : item.id === 'devices'
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : 'bg-teal-500/20 text-teal-300'
                     }`}>
                       {item.badge}
                     </span>
@@ -209,7 +218,7 @@ export const Sidebar = () => {
                 <h4 className="text-xs font-bold text-white truncate">Sanjiv Venkat</h4>
                 <div className="flex items-center gap-1 text-[10px] text-slate-400">
                   {isBackendConnected ? (
-                    <span className="text-emerald-400 font-semibold flex items-center gap-1">● REST API</span>
+                    <span className="text-emerald-400 font-semibold flex items-center gap-1">● REST API Sync</span>
                   ) : (
                     <span className="text-red-400 font-semibold flex items-center gap-1">● Offline</span>
                   )}

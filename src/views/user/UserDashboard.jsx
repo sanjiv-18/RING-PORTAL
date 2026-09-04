@@ -2,12 +2,12 @@ import React from 'react';
 import { useHealth } from '../../context/HealthContext';
 import { 
   Heart, Wind, Thermometer, Droplets, Activity, Moon, 
-  Sun, ShieldCheck, AlertTriangle, ArrowUpRight, Sparkles, Bell, User, CheckCircle2
+  Sun, ShieldCheck, AlertTriangle, ArrowUpRight, Sparkles, Bell, User, CheckCircle2, Watch, CircleDot, Zap
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export const UserDashboard = () => {
-  const { vitals, environment, aiRisk, setUserTab, notifications } = useHealth();
+  const { vitals, environment, aiRisk, setUserTab, notifications, activeDevice, wearableReading } = useHealth();
 
   const trendData = [
     { time: '06:00', hr: 70, temp: 36.5, spo2: 98 },
@@ -24,10 +24,20 @@ export const UserDashboard = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">Good morning, Sanjiv</h1>
-          <p className="text-xs text-slate-400 mt-0.5">Here's your health overview for today.</p>
+          <p className="text-xs text-slate-400 mt-0.5">Here's your health & wearable telemetry overview for today.</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Active Wearable Badge */}
+          <button
+            onClick={() => setUserTab('devices')}
+            className="flex items-center gap-2 px-3 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 rounded-xl border border-teal-500/30 text-xs font-bold transition"
+          >
+            <Watch className="w-4 h-4 text-teal-400" />
+            <span>{activeDevice?.deviceName || 'Apple Watch Ultra 2'}</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          </button>
+
           <button
             onClick={() => setUserTab('notifications')}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 text-xs font-semibold transition"
@@ -69,19 +79,29 @@ export const UserDashboard = () => {
               </h2>
               <p className="text-xs text-slate-300">
                 {vitals.statusSeverity === 'normal'
-                  ? 'All vital metrics are within your personal baseline bounds.'
-                  : 'Temperature and heart rate are above your personal baseline.'}
+                  ? 'All vital metrics and wearable PPG sensors are within baseline bounds.'
+                  : 'Temperature and heart rate telemetry are above personal baseline thresholds.'}
               </p>
             </div>
           </div>
 
-          <button
-            onClick={() => setUserTab('ai_analysis')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl shadow transition text-xs whitespace-nowrap"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>View AI Analysis</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setUserTab('wearables')}
+              className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 font-bold rounded-xl transition text-xs"
+            >
+              <Activity className="w-4 h-4" />
+              <span>Wearable Analytics</span>
+            </button>
+
+            <button
+              onClick={() => setUserTab('ai_analysis')}
+              className="flex items-center gap-2 px-4 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl shadow transition text-xs whitespace-nowrap"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>AI Analysis</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -104,12 +124,13 @@ export const UserDashboard = () => {
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-400 border-t border-slate-800 pt-2">
-            Calculated via live telemetry
+          <div className="text-[11px] text-slate-400 border-t border-slate-800 pt-2 flex items-center justify-between">
+            <span>Live IoT Sensor Sync</span>
+            <span className="text-emerald-400 font-bold">● Active</span>
           </div>
         </div>
 
-        {/* Key Vitals (3 Columns) */}
+        {/* Key Vitals (3 Columns Grid) */}
         <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-4">
           {/* Heart Rate */}
           <div className="glass-card p-4 rounded-2xl space-y-2 border-slate-800">
@@ -132,6 +153,18 @@ export const UserDashboard = () => {
             <div className="text-2xl font-extrabold text-white font-mono">{vitals.spO2}%</div>
             <div className={`text-[11px] font-bold ${vitals.spO2 < 95 ? 'text-amber-400' : 'text-emerald-400'}`}>
               {vitals.spO2 < 95 ? 'Below normal ⚠️' : 'Normal ✓'}
+            </div>
+          </div>
+
+          {/* Stress & HRV (From Wearable) */}
+          <div className="glass-card p-4 rounded-2xl space-y-2 border-slate-800">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span className="font-semibold uppercase">Wearable Stress</span>
+              <Zap className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="text-2xl font-extrabold text-white font-mono">{wearableReading.stressScore || 24} <span className="text-xs font-normal text-slate-400">/100</span></div>
+            <div className={`text-[11px] font-bold ${(wearableReading.stressScore || 24) > 60 ? 'text-amber-400' : 'text-emerald-400'}`}>
+              {wearableReading.stressLevel || 'Low'} strain (HRV {wearableReading.hrv || 68}ms)
             </div>
           </div>
 
@@ -159,24 +192,16 @@ export const UserDashboard = () => {
             </div>
           </div>
 
-          {/* Daily Activity */}
-          <div className="glass-card p-4 rounded-2xl space-y-2 border-slate-800">
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span className="font-semibold uppercase">Activity</span>
-              <Activity className="w-4 h-4 text-emerald-400" />
-            </div>
-            <div className="text-2xl font-extrabold text-white font-mono">{vitals.activity.toLocaleString()}</div>
-            <div className="text-[11px] text-slate-400">steps</div>
-          </div>
-
           {/* Sleep */}
           <div className="glass-card p-4 rounded-2xl space-y-2 border-slate-800">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span className="font-semibold uppercase">Sleep</span>
+              <span className="font-semibold uppercase">Sleep Stage</span>
               <Moon className="w-4 h-4 text-indigo-400" />
             </div>
             <div className="text-2xl font-extrabold text-white font-mono">{vitals.sleep}</div>
-            <div className="text-[11px] text-indigo-300 font-semibold">Deep rest</div>
+            <div className="text-[11px] text-indigo-300 font-semibold">
+              Quality: {wearableReading.sleepData?.qualityScore || 85}%
+            </div>
           </div>
         </div>
       </div>
@@ -199,7 +224,7 @@ export const UserDashboard = () => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 11 }} />
-              <YAxis stroke="#64748b" domain={[60, 120]} tick={{ fontSize: 11 }} />
+              <YAxis stroke="#64748b" domain={[60, 140]} tick={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px' }} />
               <Area type="monotone" dataKey="hr" stroke="#f43f5e" strokeWidth={2} fillOpacity={1} fill="url(#hrTrend)" name="Heart Rate (BPM)" />
             </AreaChart>

@@ -17,6 +17,8 @@ import doctorRoutes from './src/routes/doctorRoutes.js';
 import adminRoutes from './src/routes/adminRoutes.js';
 import emergencyRoutes from './src/routes/emergencyRoutes.js';
 import simulationRoutes from './src/routes/simulationRoutes.js';
+import deviceRoutes from './src/routes/deviceRoutes.js';
+import wearableRoutes from './src/routes/wearableRoutes.js';
 
 dotenv.config();
 
@@ -46,6 +48,8 @@ app.use('/api/doctor', doctorRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/simulation', simulationRoutes);
+app.use('/api/devices', deviceRoutes);
+app.use('/api/wearables', wearableRoutes);
 
 // Health check endpoint with DB mode & latency
 app.get('/api/status', (req, res) => {

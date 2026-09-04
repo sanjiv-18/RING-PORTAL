@@ -1,15 +1,17 @@
 import React from 'react';
 import { useHealth } from '../context/HealthContext';
-import { Flame, Wind, AlertTriangle, RefreshCw, Sliders, CheckCircle2, Wifi, WifiOff, Database } from 'lucide-react';
+import { Flame, Wind, AlertTriangle, RefreshCw, CheckCircle2, Wifi, WifiOff, Database, Watch, Droplets, Moon, HeartPulse } from 'lucide-react';
 
 export const SimulationBar = () => {
   const { 
     activeSimulation, 
     simulateHeatStress, 
     simulateHighAQI, 
+    simulateHrIncrease,
+    simulatePoorSleep,
+    simulateDehydration,
     triggerFallSimulation, 
     normalizeVitals,
-    simulateBaselineShift,
     resetSimulation,
     isBackendConnected,
     dbMode,
@@ -22,7 +24,7 @@ export const SimulationBar = () => {
       {/* Demo Badge, Database Engine & Sync Indicator */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-extrabold tracking-wider uppercase text-[10px] border border-purple-500/30">
-          DEMO MODE
+          AI + IoT SYSTEM
         </span>
         
         <span className="text-slate-600 hidden sm:inline">|</span>
@@ -56,8 +58,51 @@ export const SimulationBar = () => {
 
       {/* Scenario Action Controls */}
       <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-slate-400 hidden lg:inline mr-1 text-[10px] uppercase font-bold">Scenarios:</span>
+        <span className="text-slate-400 hidden lg:inline mr-1 text-[10px] uppercase font-bold">Simulations:</span>
 
+        {/* HR Spike */}
+        <button
+          onClick={simulateHrIncrease}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition ${
+            activeSimulation === 'hr_increase'
+              ? 'bg-rose-500 text-white font-extrabold ring-1 ring-rose-400'
+              : 'bg-slate-800 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30'
+          }`}
+          title="Simulate 124 BPM Tachycardia spike detected by wearable"
+        >
+          <HeartPulse className="w-3 h-3" />
+          <span>HR Spike</span>
+        </button>
+
+        {/* Dehydration */}
+        <button
+          onClick={simulateDehydration}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition ${
+            activeSimulation === 'dehydration'
+              ? 'bg-cyan-500 text-slate-950 font-extrabold ring-1 ring-cyan-400'
+              : 'bg-slate-800 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+          }`}
+          title="Simulate 36% Dehydration bio-impedance telemetry"
+        >
+          <Droplets className="w-3 h-3" />
+          <span>Dehydration</span>
+        </button>
+
+        {/* Poor Sleep */}
+        <button
+          onClick={simulatePoorSleep}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition ${
+            activeSimulation === 'poor_sleep'
+              ? 'bg-indigo-500 text-white font-extrabold ring-1 ring-indigo-400'
+              : 'bg-slate-800 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+          }`}
+          title="Simulate 4h 10m fragmented sleep with low REM/Deep stages"
+        >
+          <Moon className="w-3 h-3" />
+          <span>Poor Sleep</span>
+        </button>
+
+        {/* Heat Stress */}
         <button
           onClick={simulateHeatStress}
           className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition ${
@@ -71,19 +116,7 @@ export const SimulationBar = () => {
           <span>Heat Stress</span>
         </button>
 
-        <button
-          onClick={simulateHighAQI}
-          className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition ${
-            activeSimulation === 'high_aqi'
-              ? 'bg-purple-500 text-white font-extrabold ring-1 ring-purple-400'
-              : 'bg-slate-800 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30'
-          }`}
-          title="Simulate 215 AQI hazardous smog scenario"
-        >
-          <Wind className="w-3 h-3" />
-          <span>High AQI</span>
-        </button>
-
+        {/* Fall Simulation */}
         <button
           onClick={triggerFallSimulation}
           className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition ${
@@ -97,24 +130,17 @@ export const SimulationBar = () => {
           <span>Simulate Fall</span>
         </button>
 
+        {/* Normalize */}
         <button
           onClick={normalizeVitals}
           className="flex items-center gap-1 px-2.5 py-1 bg-slate-800 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded font-bold transition"
-          title="Normalize vitals to baseline"
+          title="Normalize all vitals and wearable telemetry to baseline"
         >
           <CheckCircle2 className="w-3 h-3 text-emerald-400" />
           <span>Normalize</span>
         </button>
 
-        <button
-          onClick={simulateBaselineShift}
-          className="flex items-center gap-1 px-2.5 py-1 bg-slate-800 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded font-bold transition"
-          title="Trigger baseline physiological shift"
-        >
-          <Sliders className="w-3 h-3 text-blue-400" />
-          <span>Baseline Shift</span>
-        </button>
-
+        {/* Reset */}
         <button
           onClick={resetSimulation}
           className="flex items-center gap-1 px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition"

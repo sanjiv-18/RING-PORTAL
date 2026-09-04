@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useHealth } from '../../context/HealthContext';
-import { Heart, Wind, Thermometer, Activity, Moon, ShieldCheck, Sparkles, Sliders, FileText, Send, ArrowLeft } from 'lucide-react';
+import { Heart, Wind, Thermometer, Activity, Moon, ShieldCheck, Sparkles, Sliders, FileText, Send, ArrowLeft, Watch, Zap, CircleDot } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export const PatientDetailView = () => {
-  const { patients, selectedPatientId, setDoctorTab, clinicalNotes, setClinicalNotes } = useHealth();
+  const { patients, selectedPatientId, setDoctorTab, clinicalNotes, setClinicalNotes, wearableReading, activeDevice } = useHealth();
   const patient = patients.find(p => p.id === selectedPatientId) || patients[0];
   const [newNote, setNewNote] = useState('');
 
@@ -47,49 +47,76 @@ export const PatientDetailView = () => {
           </div>
         </div>
 
-        <div className={`px-4 py-2 rounded-xl text-xs font-extrabold tracking-wider uppercase ${
-          patient.riskLevel === 'Critical' ? 'bg-red-500 text-white animate-pulse' : patient.riskLevel === 'High' ? 'bg-amber-500 text-slate-950' : 'bg-emerald-500/20 text-emerald-300'
-        }`}>
-          {patient.riskLevel} Risk Profile
+        <div className="flex items-center gap-3">
+          {/* Active IoT Device Badge */}
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-semibold">
+            <Watch className="w-4 h-4 text-teal-400" />
+            <span className="text-slate-300">{activeDevice?.deviceName || 'Apple Watch Ultra 2'}</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          </div>
+
+          <div className={`px-4 py-2 rounded-xl text-xs font-extrabold tracking-wider uppercase ${
+            patient.riskLevel === 'Critical' ? 'bg-red-500 text-white animate-pulse' : patient.riskLevel === 'High' ? 'bg-amber-500 text-slate-950' : 'bg-emerald-500/20 text-emerald-300'
+          }`}>
+            {patient.riskLevel} Risk Profile
+          </div>
         </div>
       </div>
 
       {/* Vitals Summary Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <div className="glass-card p-4 rounded-2xl space-y-1">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span>Heart Rate</span>
             <Heart className="w-4 h-4 text-rose-400" />
           </div>
-          <div className="text-2xl font-extrabold text-white font-mono">{patient.heartRate} BPM</div>
-          <div className="text-[10px] text-slate-400">Normal range: 72–88</div>
+          <div className="text-xl font-extrabold text-white font-mono">{patient.heartRate} BPM</div>
+          <div className="text-[10px] text-slate-400">Baseline: 72–88</div>
         </div>
 
         <div className="glass-card p-4 rounded-2xl space-y-1">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>SpO₂ Saturation</span>
+            <span>SpO₂ Oxygen</span>
             <Wind className="w-4 h-4 text-blue-400" />
           </div>
-          <div className="text-2xl font-extrabold text-white font-mono">{patient.spO2}%</div>
-          <div className="text-[10px] text-slate-400">Normal range: 95–100%</div>
+          <div className="text-xl font-extrabold text-white font-mono">{patient.spO2}%</div>
+          <div className="text-[10px] text-slate-400">Baseline: 95–100%</div>
         </div>
 
         <div className="glass-card p-4 rounded-2xl space-y-1">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Body Temperature</span>
+            <span>Body Temp</span>
             <Thermometer className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-extrabold text-white font-mono">{patient.temp}°C</div>
-          <div className="text-[10px] text-slate-400">Normal range: 36.5–37.2°C</div>
+          <div className="text-xl font-extrabold text-white font-mono">{patient.temp}°C</div>
+          <div className="text-[10px] text-slate-400">Baseline: 36.5–37.2°C</div>
         </div>
 
         <div className="glass-card p-4 rounded-2xl space-y-1">
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Heat Stress Risk</span>
+            <span>Stress Index</span>
+            <Zap className="w-4 h-4 text-amber-400" />
+          </div>
+          <div className="text-xl font-extrabold text-white font-mono">{wearableReading.stressScore || 24} /100</div>
+          <div className="text-[10px] text-emerald-400 font-bold">{wearableReading.stressLevel || 'Low'} Strain</div>
+        </div>
+
+        <div className="glass-card p-4 rounded-2xl space-y-1">
+          <div className="flex items-center justify-between text-xs text-slate-400">
+            <span>HRV (RMSSD)</span>
+            <Activity className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="text-xl font-extrabold text-white font-mono">{wearableReading.hrv || 68} ms</div>
+          <div className="text-[10px] text-slate-400">Autonomic Tone</div>
+        </div>
+
+        <div className="glass-card p-4 rounded-2xl space-y-1">
+          <div className="flex items-center justify-between text-xs text-slate-400">
+            <span>Heat Stress</span>
             <Sparkles className="w-4 h-4 text-purple-400" />
           </div>
-          <div className="text-2xl font-extrabold text-amber-400 font-mono">{patient.heatStress}%</div>
-          <div className="text-[10px] text-amber-300 font-semibold">{patient.alert}</div>
+          <div className="text-xl font-extrabold text-amber-400 font-mono">{patient.heatStress}%</div>
+          <div className="text-[10px] text-amber-300 font-semibold truncate">{patient.alert}</div>
         </div>
       </div>
 

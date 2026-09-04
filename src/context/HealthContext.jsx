@@ -38,6 +38,34 @@ export const HealthProvider = ({ children }) => {
     statusSeverity: 'normal',
   });
 
+  // IoT Connected Wearable Devices & Telemetry State
+  const [devices, setDevices] = useState([]);
+  const [activeDevice, setActiveDevice] = useState(null);
+  const [wearableReading, setWearableReading] = useState({
+    deviceId: 'dev_apple_watch',
+    deviceName: 'Apple Watch Ultra 2',
+    heartRate: 82,
+    spo2: 98,
+    temperature: 36.8,
+    steps: 8500,
+    calories: 620,
+    stressLevel: 'Low',
+    stressScore: 24,
+    activityLevel: 'Moderate',
+    hrv: 68,
+    sleepData: {
+      duration: '7h 20m',
+      qualityScore: 85,
+      deepSleepMinutes: 110,
+      remSleepMinutes: 95,
+      lightSleepMinutes: 235,
+      awakeMinutes: 20
+    },
+    fallDetected: false,
+    timestamp: new Date().toISOString()
+  });
+  const [wearableInsights, setWearableInsights] = useState([]);
+
   // Baseline Benchmark Data
   const [baseline, setBaseline] = useState({
     heartRate: { min: 72, max: 88, unit: 'BPM', average: 78 },
@@ -120,6 +148,7 @@ export const HealthProvider = ({ children }) => {
   const [systemServices, setSystemServices] = useState([
     { name: 'API Server', status: 'Operational', latency: '12ms' },
     { name: 'Database', status: 'Operational', latency: '4ms' },
+    { name: 'IoT Telemetry Stream', status: 'Operational', latency: '18ms' },
     { name: 'AI Risk Engine', status: 'Operational', latency: '28ms' },
     { name: 'Simulation Engine', status: 'Operational', latency: '8ms' },
     { name: 'Notification Service', status: 'Operational', latency: '15ms' }
@@ -141,7 +170,10 @@ export const HealthProvider = ({ children }) => {
         adminRes,
         notesRes,
         eventsRes,
-        auditRes
+        auditRes,
+        devicesRes,
+        wearableRes,
+        insightsRes
       ] = await Promise.all([
         apiService.getSystemStatus().catch(() => null),
         apiService.getCurrentHealth(role).catch(() => null),
@@ -153,7 +185,10 @@ export const HealthProvider = ({ children }) => {
         apiService.getAdminStatistics().catch(() => null),
         apiService.getDoctorPatientDetails(selectedPatientId).catch(() => null),
         apiService.getEmergencyEvents(role).catch(() => null),
-        apiService.getAdminAuditLogs().catch(() => null)
+        apiService.getAdminAuditLogs().catch(() => null),
+        apiService.getDevices(role).catch(() => null),
+        apiService.getCurrentWearable(role).catch(() => null),
+        apiService.getWearableInsights(role).catch(() => null)
       ]);
 
       if (statusRes) {
@@ -194,6 +229,16 @@ export const HealthProvider = ({ children }) => {
       }
       if (auditRes && auditRes.auditLogs) {
         setAuditLogs(auditRes.auditLogs);
+      }
+      if (devicesRes && devicesRes.devices) {
+        setDevices(devicesRes.devices);
+        setActiveDevice(devicesRes.activeDevice || devicesRes.devices[0] || null);
+      }
+      if (wearableRes && wearableRes.reading) {
+        setWearableReading(wearableRes.reading);
+      }
+      if (insightsRes && insightsRes.insights) {
+        setWearableInsights(insightsRes.insights);
       }
 
       setIsBackendConnected(true);
@@ -239,6 +284,24 @@ export const HealthProvider = ({ children }) => {
     await fetchAllData();
   };
 
+  const simulateHrIncrease = async () => {
+    setActiveSimulation('hr_increase');
+    await apiService.triggerSimulation('simulate-hr-increase');
+    await fetchAllData();
+  };
+
+  const simulatePoorSleep = async () => {
+    setActiveSimulation('poor_sleep');
+    await apiService.triggerSimulation('simulate-poor-sleep');
+    await fetchAllData();
+  };
+
+  const simulateDehydration = async () => {
+    setActiveSimulation('dehydration');
+    await apiService.triggerSimulation('simulate-dehydration');
+    await fetchAllData();
+  };
+
   const triggerFallSimulation = async () => {
     setActiveSimulation('fall_detected');
     setFallTimer(10);
@@ -264,6 +327,27 @@ export const HealthProvider = ({ children }) => {
     setFallModalOpen(false);
     setSosSent(false);
     await apiService.triggerSimulation('reset');
+    await fetchAllData();
+  };
+
+  // IOT WEARABLE DEVICE HANDLERS
+  const pairDevice = async (deviceData) => {
+    await apiService.addDevice(deviceData, role);
+    await fetchAllData();
+  };
+
+  const updateDeviceStatus = async (id, statusData) => {
+    await apiService.updateDeviceStatus(id, statusData, role);
+    await fetchAllData();
+  };
+
+  const syncDevice = async (id) => {
+    await apiService.syncDevice(id, role);
+    await fetchAllData();
+  };
+
+  const removeDevice = async (id) => {
+    await apiService.deleteDevice(id, role);
     await fetchAllData();
   };
 
@@ -309,6 +393,16 @@ export const HealthProvider = ({ children }) => {
       baseline, setBaseline,
       environment, setEnvironment,
       aiRisk, setAiRisk,
+      // IoT Wearables
+      devices, setDevices,
+      activeDevice, setActiveDevice,
+      wearableReading, setWearableReading,
+      wearableInsights,
+      pairDevice,
+      updateDeviceStatus,
+      syncDevice,
+      removeDevice,
+      // Emergency & Others
       emergencyContacts,
       notifications, setNotifications,
       alerts, setAlerts,
@@ -321,9 +415,12 @@ export const HealthProvider = ({ children }) => {
       fallModalOpen, setFallModalOpen,
       fallTimer, setFallTimer,
       sosSent, setSosSent,
-      // Actions
+      // Actions & Simulations
       simulateHeatStress,
       simulateHighAQI,
+      simulateHrIncrease,
+      simulatePoorSleep,
+      simulateDehydration,
       triggerFallSimulation,
       normalizeVitals,
       simulateBaselineShift,

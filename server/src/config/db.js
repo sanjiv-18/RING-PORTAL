@@ -64,6 +64,83 @@ const initialData = {
     activePreset: 'normal',
     lastUpdated: new Date().toISOString(),
   },
+  wearable_devices: [
+    {
+      _id: 'dev_apple_watch',
+      id: 'dev_apple_watch',
+      userId: 'usr_sanjiv',
+      deviceName: 'Apple Watch Ultra 2',
+      deviceType: 'Smart Watch',
+      manufacturer: 'Apple Inc.',
+      modelNumber: 'A2986 (Cellular + GPS)',
+      connectionStatus: 'CONNECTED',
+      batteryLevel: 88,
+      isCharging: false,
+      firmwareVersion: 'watchOS 10.4',
+      lastSyncTime: new Date().toISOString(),
+      sensorsEnabled: ['Optical Heart Rate (PPG)', 'SpO2 Sensor', 'Skin Temperature', 'Fall Detection Accelerometer', 'ECG Sensor'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      _id: 'dev_oura_ring',
+      id: 'dev_oura_ring',
+      userId: 'usr_sanjiv',
+      deviceName: 'Oura Ring Gen 3 Horizon',
+      deviceType: 'Smart Ring',
+      manufacturer: 'Oura Health',
+      modelNumber: 'HERO-SILVER-10',
+      connectionStatus: 'CONNECTED',
+      batteryLevel: 74,
+      isCharging: false,
+      firmwareVersion: 'v2.9.22',
+      lastSyncTime: new Date().toISOString(),
+      sensorsEnabled: ['Infrared PPG', 'Negative Temperature Coefficient (NTC)', '3D Accelerometer', 'Sleep Staging AI'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
+      _id: 'dev_garmin_band',
+      id: 'dev_garmin_band',
+      userId: 'usr_sanjiv',
+      deviceName: 'Garmin Forerunner 965',
+      deviceType: 'Fitness Band',
+      manufacturer: 'Garmin Ltd.',
+      modelNumber: 'FR-965-TITANIUM',
+      connectionStatus: 'DISCONNECTED',
+      batteryLevel: 92,
+      isCharging: false,
+      firmwareVersion: 'v18.23',
+      lastSyncTime: new Date(Date.now() - 86400000).toISOString(),
+      sensorsEnabled: ['Elevate v4 Optical HR', 'Pulse Ox', 'Barometric Altimeter', 'VO2 Max Analyzer'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+  ],
+  wearable_readings: {
+    userId: 'usr_sanjiv',
+    deviceId: 'dev_apple_watch',
+    deviceName: 'Apple Watch Ultra 2',
+    heartRate: 82,
+    spo2: 98,
+    temperature: 36.8,
+    steps: 8500,
+    calories: 620,
+    stressLevel: 'Low',
+    stressScore: 24,
+    activityLevel: 'Moderate',
+    hrv: 68,
+    sleepData: {
+      duration: '7h 20m',
+      qualityScore: 85,
+      deepSleepMinutes: 110,
+      remSleepMinutes: 95,
+      lightSleepMinutes: 235,
+      awakeMinutes: 20
+    },
+    fallDetected: false,
+    timestamp: new Date().toISOString()
+  },
   health_readings: {
     userId: 'usr_sanjiv',
     heartRate: 82,
@@ -74,7 +151,7 @@ const initialData = {
     tempChange: 'Optimal',
     hydration: 78,
     hydrationChange: 'Good',
-    activity: 6240,
+    activity: 8500,
     sleep: '7h 20m',
     healthScore: 82,
     statusText: 'Your health condition is normal',
@@ -91,6 +168,7 @@ const initialData = {
     hydration: { min: 60, max: 100, unit: '%', average: 80 },
     activity: { goal: 8000, average: 7400 },
     sleep: { target: '8h', average: '7.5h' },
+    stress: { maxSafeScore: 45, average: 28 },
     calibratedDays: 30,
     updatedAt: new Date().toISOString()
   },
@@ -140,9 +218,12 @@ const initialData = {
       age: 34,
       gender: 'Male',
       heartRate: 82,
-      spO2: 97,
+      spO2: 98,
       temp: 36.8,
       hydration: 78,
+      connectedDevice: 'Apple Watch Ultra 2 (88% 🔋)',
+      stressLevel: 'Low',
+      sleepDuration: '7h 20m',
       riskLevel: 'Moderate',
       heatStress: 72,
       healthScore: 82,
@@ -159,6 +240,9 @@ const initialData = {
       spO2: 94,
       temp: 37.4,
       hydration: 55,
+      connectedDevice: 'Oura Ring Gen 3 (74% 🔋)',
+      stressLevel: 'Moderate',
+      sleepDuration: '5h 15m',
       riskLevel: 'High',
       heatStress: 88,
       healthScore: 68,
@@ -175,6 +259,9 @@ const initialData = {
       spO2: 98,
       temp: 36.6,
       hydration: 85,
+      connectedDevice: 'Fitbit Charge 6 (62% 🔋)',
+      stressLevel: 'Low',
+      sleepDuration: '8h 05m',
       riskLevel: 'Low',
       heatStress: 18,
       healthScore: 92,
@@ -191,6 +278,9 @@ const initialData = {
       spO2: 92,
       temp: 38.1,
       hydration: 40,
+      connectedDevice: 'Medical Bio-Patch (95% 🔋)',
+      stressLevel: 'High',
+      sleepDuration: '4h 10m',
       riskLevel: 'Critical',
       heatStress: 94,
       healthScore: 54,
@@ -199,7 +289,7 @@ const initialData = {
     }
   ],
   alerts: [
-    { id: 'alt_1', userId: 'usr_sanjiv', category: 'Health', type: 'critical', title: 'Abnormal Heart Rate', message: 'Heart rate exceeded baseline during peak thermal hours.', status: 'ACTIVE', source: 'Telemetry Sensor', timestamp: new Date(Date.now() - 600000).toISOString() },
+    { id: 'alt_1', userId: 'usr_sanjiv', category: 'Health', type: 'critical', title: 'Abnormal Heart Rate', message: 'Heart rate exceeded baseline during peak thermal hours.', status: 'ACTIVE', source: 'Apple Watch Ultra 2', timestamp: new Date(Date.now() - 600000).toISOString() },
     { id: 'alt_2', userId: 'usr_sanjiv', category: 'Environmental', type: 'warning', title: 'Heat Stress Warning', message: 'High outside temperature (38°C) detected in your zone.', status: 'ACTIVE', source: 'Micro-Weather Engine', timestamp: new Date(Date.now() - 2100000).toISOString() },
     { id: 'alt_3', userId: 'usr_sanjiv', category: 'Environmental', type: 'warning', title: 'Hazardous Air Quality', message: 'AQI increased to 142. Take precaution outdoors.', status: 'ACKNOWLEDGED', source: 'AQI Sensor', timestamp: new Date(Date.now() - 7200000).toISOString() },
     { id: 'alt_4', userId: 'usr_sanjiv', category: 'Recovery', type: 'info', title: 'Health Indicators Restored', message: 'Hydration level improved after water intake.', status: 'RESOLVED', source: 'Hydration Monitor', timestamp: new Date(Date.now() - 14400000).toISOString() }
@@ -210,7 +300,7 @@ const initialData = {
     { id: 'notif_3', recipientId: 'usr_sanjiv', category: 'Environmental', title: '🌫️ Air Quality Alert', message: 'AQI index elevated in Sector 4.', read: true, createdAt: new Date(Date.now() - 7200000).toISOString() }
   ],
   emergency_events: [
-    { id: 'emg_1', userId: 'usr_sanjiv', patientName: 'Sanjiv Venkat', eventType: 'Fall Detected', triggerSource: 'Accelerometer ML Model', status: 'RESOLVED', location: 'Sector 4, Central Urban Hub', responseTime: '8s', timestamp: new Date(Date.now() - 86400000).toISOString() }
+    { id: 'emg_1', userId: 'usr_sanjiv', patientName: 'Sanjiv Venkat', eventType: 'Fall Detected', triggerSource: 'Apple Watch Accelerometer', status: 'RESOLVED', location: 'Sector 4, Central Urban Hub', responseTime: '8s', timestamp: new Date(Date.now() - 86400000).toISOString() }
   ],
   emergency_contacts: [
     { id: 'cnt_1', userId: 'usr_sanjiv', name: 'Father', phone: '+91 98765 43210', relation: 'Primary Contact' },
@@ -224,11 +314,13 @@ const initialData = {
   audit_logs: [
     { id: 'aud_1', timestamp: new Date().toISOString(), actor: 'System AI Engine', action: 'Multi-factor risk diagnostic computed', details: 'Risk: 72/100 Moderate' },
     { id: 'aud_2', timestamp: new Date(Date.now() - 3600000).toISOString(), actor: 'usr_sanjiv', action: 'User login verified', details: 'Role: USER' },
-    { id: 'aud_3', timestamp: new Date(Date.now() - 7200000).toISOString(), actor: 'System', action: 'Local baseline model calibration checked', details: '30-day baseline benchmark OK' }
+    { id: 'aud_3', timestamp: new Date(Date.now() - 7200000).toISOString(), actor: 'Apple Watch Ultra 2', action: 'BLE Wearable Telemetry Ingested', details: 'HR: 82 BPM, SpO2: 98%, HRV: 68ms' }
   ],
   admin_stats: {
     totalUsers: 1248,
     activeUsers: 842,
+    connectedDevicesCount: 924,
+    activeWearableUsers: 780,
     highRiskUsers: 37,
     heatAlerts: 84,
     respiratoryAlerts: 52,

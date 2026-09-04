@@ -1,9 +1,12 @@
 import React from 'react';
 import { useHealth } from '../../context/HealthContext';
-import { Settings, Users, Stethoscope, AlertTriangle, Flame, PhoneCall, Cpu, Activity, CheckCircle2, History, Database } from 'lucide-react';
+import { Settings, Users, Stethoscope, AlertTriangle, Flame, PhoneCall, Cpu, Activity, CheckCircle2, History, Database, Watch, Radio } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const { adminStats, alerts, systemServices, auditLogs, dbMode, dbLatency } = useHealth();
+  const { adminStats, alerts, systemServices, auditLogs, dbMode, dbLatency, devices } = useHealth();
+
+  const totalWearables = adminStats.totalDevices || (devices?.length || 4);
+  const activeWearables = devices?.filter(d => d.connectionStatus === 'CONNECTED').length || 3;
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -15,7 +18,7 @@ export const AdminDashboard = () => {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-white">ADMINISTRATOR PORTAL</h1>
-            <p className="text-xs text-slate-400">System Infrastructure, Population Health Telemetry & Event Stream</p>
+            <p className="text-xs text-slate-400">System Infrastructure, IoT Wearable Network & Population Health Telemetry</p>
           </div>
         </div>
 
@@ -25,12 +28,18 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Top 5 Metrics Summary Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* Top Metrics Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="glass-card p-4 rounded-2xl space-y-1 border-slate-800">
           <span className="text-[10px] font-bold text-slate-400 uppercase">Total Users</span>
           <div className="text-2xl font-extrabold text-white font-mono">{adminStats.totalUsers.toLocaleString()}</div>
           <span className="text-[10px] text-emerald-400 font-semibold">{adminStats.activeUsers} Active</span>
+        </div>
+
+        <div className="glass-card p-4 rounded-2xl space-y-1 border-slate-800">
+          <span className="text-[10px] font-bold text-slate-400 uppercase">IoT Wearables</span>
+          <div className="text-2xl font-extrabold text-teal-300 font-mono">{totalWearables}</div>
+          <span className="text-[10px] text-emerald-400 font-semibold">{activeWearables} Connected</span>
         </div>
 
         <div className="glass-card p-4 rounded-2xl space-y-1 border-slate-800">
@@ -62,15 +71,15 @@ export const AdminDashboard = () => {
       <div className="glass-card p-6 rounded-2xl space-y-4 border-slate-800">
         <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
           <Cpu className="w-4 h-4 text-purple-400" />
-          <span>System Services Health & Operational Status</span>
+          <span>System Services & IoT Mesh Telemetry Status</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
           {systemServices.map((srv, i) => (
             <div key={i} className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="font-bold text-white">{srv.name}</span>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="font-bold text-white truncate">{srv.name}</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               </div>
               <div className="flex items-center justify-between text-[10px]">
                 <span className="font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20">
@@ -89,7 +98,7 @@ export const AdminDashboard = () => {
         <div className="glass-card p-6 rounded-2xl border-slate-800 space-y-4">
           <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
             <Flame className="w-4 h-4 text-amber-400" />
-            <span>Environmental Alert Statistics</span>
+            <span>Environmental & Wearable Alert Statistics</span>
           </h2>
 
           <div className="space-y-3">
@@ -101,6 +110,11 @@ export const AdminDashboard = () => {
             <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
               <span className="text-xs text-slate-300">Respiratory / AQI Alerts Logged</span>
               <span className="text-base font-extrabold text-purple-400 font-mono">{adminStats.respiratoryAlerts}</span>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
+              <span className="text-xs text-slate-300">Wearable Accelerometer Fall Alerts</span>
+              <span className="text-base font-extrabold text-rose-400 font-mono">{adminStats.sosEvents}</span>
             </div>
           </div>
         </div>
@@ -115,9 +129,9 @@ export const AdminDashboard = () => {
           <div className="space-y-2">
             {alerts.slice(0, 4).map(a => (
               <div key={a.id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span>{a.type === 'critical' ? '🔴' : a.type === 'warning' ? '🟠' : '🟢'}</span>
-                  <span className="text-slate-200 font-medium">{a.title}: {a.message}</span>
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <span className="shrink-0">{a.type === 'critical' ? '🔴' : a.type === 'warning' ? '🟠' : '🟢'}</span>
+                  <span className="text-slate-200 font-medium truncate">{a.title}: {a.message}</span>
                 </div>
                 <span className="text-slate-500 font-mono text-[10px] shrink-0 ml-2">
                   {a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : 'Just now'}

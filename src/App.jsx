@@ -6,6 +6,8 @@ import { FallDetectionModal } from './components/FallDetectionModal';
 
 // User Views
 import { UserDashboard } from './views/user/UserDashboard';
+import { ConnectedDevices } from './views/user/ConnectedDevices';
+import { WearableAnalytics } from './views/user/WearableAnalytics';
 import { AIHealthAnalysis } from './views/user/AIHealthAnalysis';
 import { EnvironmentalMonitoring } from './views/user/EnvironmentalMonitoring';
 import { DisasterAlertCenter } from './views/user/DisasterAlertCenter';
@@ -34,6 +36,8 @@ const MainContent = () => {
   const renderUserView = () => {
     switch (userTab) {
       case 'dashboard': return <UserDashboard />;
+      case 'devices': return <ConnectedDevices />;
+      case 'wearables': return <WearableAnalytics />;
       case 'ai_analysis': return <AIHealthAnalysis />;
       case 'environment': return <EnvironmentalMonitoring />;
       case 'disaster': return <DisasterAlertCenter />;

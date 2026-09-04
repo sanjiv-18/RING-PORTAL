@@ -129,6 +129,88 @@ export const apiService = {
     return res.ok ? res.json() : null;
   },
 
+  // IoT Smart Wearables & Device Integration
+  async getDevices(role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/devices`, {
+      headers: this.getHeaders(role)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async addDevice(data, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/devices`, {
+      method: 'POST',
+      headers: this.getHeaders(role),
+      body: JSON.stringify(data)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async updateDeviceStatus(id, data, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/devices/${id}/status`, {
+      method: 'PUT',
+      headers: this.getHeaders(role),
+      body: JSON.stringify(data)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async syncDevice(id, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/devices/${id}/sync`, {
+      method: 'POST',
+      headers: this.getHeaders(role)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async deleteDevice(id, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/devices/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(role)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  // Wearable Telemetry & Analytics
+  async getCurrentWearable(role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/wearables/current`, {
+      headers: this.getHeaders(role)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async syncWearableData(data, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/wearables/sync`, {
+      method: 'POST',
+      headers: this.getHeaders(role),
+      body: JSON.stringify(data)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async getWearableHistory(range = '7_days', role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/wearables/history?range=${range}`, {
+      headers: this.getHeaders(role)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async getWearableInsights(role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/wearables/insights`, {
+      headers: this.getHeaders(role)
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async triggerWearableFall(data = {}, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/wearables/fall`, {
+      method: 'POST',
+      headers: this.getHeaders(role),
+      body: JSON.stringify(data)
+    });
+    return res.ok ? res.json() : null;
+  },
+
   // Doctor Portal
   async getDoctorPatients() {
     const res = await fetchWithTimeout(`${API_BASE}/doctor/patients`, {

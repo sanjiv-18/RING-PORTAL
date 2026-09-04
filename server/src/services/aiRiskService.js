@@ -1,16 +1,21 @@
 /**
  * Multi-factor AI Health Risk Engine Service
- * Calculates physiological and environmental risk indices with confidence scoring.
+ * Calculates physiological, wearable IoT, and environmental risk indices with confidence scoring.
  */
-export const calculateAiRisk = (vitals, environment, baseline = { heartRate: { max: 88 } }) => {
+export const calculateAiRisk = (vitals, environment, baseline = { heartRate: { max: 88 } }, wearableData = null) => {
   const hr = Number(vitals.heartRate) || 82;
-  const spo2 = Number(vitals.spO2) || 97;
-  const temp = Number(vitals.temp) || 36.8;
+  const spo2 = Number(vitals.spO2 || vitals.spo2) || 97;
+  const temp = Number(vitals.temp || vitals.temperature) || 36.8;
   const hydration = Number(vitals.hydration) || 78;
-  const activity = Number(vitals.activity) || 6240;
-  const outsideTemp = Number(environment.outsideTemp) || 38;
+  const activity = Number(vitals.activity || vitals.steps) || 6240;
+  const outsideTemp = Number(environment.outsideTemp || environment.temperature) || 38;
   const humidity = Number(environment.humidity) || 72;
   const aqi = Number(environment.aqi) || 142;
+
+  // Wearable metrics if provided
+  const stressScore = wearableData?.stressScore ?? (vitals.stressScore || 25);
+  const sleepQuality = wearableData?.sleepData?.qualityScore ?? 85;
+  const hrv = wearableData?.hrv ?? 68;
 
   // 1. Heat Stress Index calculation
   let heatStress = Math.min(100, Math.round(
@@ -36,25 +41,28 @@ export const calculateAiRisk = (vitals, environment, baseline = { heartRate: { m
   ));
   respiratory = Math.max(10, respiratory);
 
-  // 4. Cardiac Strain calculation
+  // 4. Cardiac Strain calculation (modulated by HRV & HR)
   let cardiac = Math.min(100, Math.round(
     (hr > 88 ? (hr - 88) * 1.8 : 10) +
-    (temp > 37.5 ? 15 : 0)
+    (temp > 37.5 ? 15 : 0) +
+    (hrv < 50 ? 12 : 0)
   ));
   cardiac = Math.max(8, cardiac);
 
-  // 5. Fatigue index
+  // 5. Fatigue & Sleep Deficit index
   let fatigue = Math.min(100, Math.round(
-    (activity / 10000) * 35 +
-    (hr > 95 ? 25 : 10) +
-    (hydration < 50 ? 20 : 0)
+    (activity / 10000) * 25 +
+    (hr > 95 ? 20 : 10) +
+    (hydration < 50 ? 15 : 0) +
+    ((100 - sleepQuality) * 0.3) +
+    (stressScore * 0.2)
   ));
-  fatigue = Math.max(15, fatigue);
+  fatigue = Math.max(12, fatigue);
 
   // Overall Score is weighted composite
   const overallScore = Math.min(100, Math.max(
     heatStress,
-    Math.round((heatStress * 0.45) + (dehydration * 0.25) + (respiratory * 0.15) + (fatigue * 0.1) + (cardiac * 0.05))
+    Math.round((heatStress * 0.40) + (dehydration * 0.20) + (respiratory * 0.15) + (fatigue * 0.15) + (cardiac * 0.10))
   ));
 
   let riskLevel = 'LOW RISK';
@@ -62,11 +70,11 @@ export const calculateAiRisk = (vitals, environment, baseline = { heartRate: { m
   else if (overallScore >= 50) riskLevel = 'MODERATE RISK';
 
   // Natural Language Root-Cause Explanation
-  let whyText = 'All physiological telemetry and environmental indices are aligned with your established baseline.';
+  let whyText = 'All physiological telemetry, IoT wearable metrics, and environmental indices are aligned with your established baseline.';
   const contributingFactors = [];
 
-  if (hr > baseline.heartRate.max) {
-    contributingFactors.push(`Heart rate is elevated (${hr} BPM, +${hr - baseline.heartRate.max} BPM above personal baseline)`);
+  if (hr > (baseline.heartRate?.max || 88)) {
+    contributingFactors.push(`Heart rate is elevated (${hr} BPM, +${hr - (baseline.heartRate?.max || 88)} BPM above personal baseline)`);
   }
   if (outsideTemp >= 38) {
     contributingFactors.push(`High ambient temperature (${outsideTemp}°C) with elevated heat index (${environment.heatIndex || 43}°C)`);
@@ -80,11 +88,17 @@ export const calculateAiRisk = (vitals, environment, baseline = { heartRate: { m
   if (aqi > 140) {
     contributingFactors.push(`Unhealthy particulate air quality (${aqi} AQI) causing respiratory strain`);
   }
+  if (stressScore >= 65) {
+    contributingFactors.push(`High autonomic stress index (${stressScore}/100) detected via wearable sensor`);
+  }
+  if (sleepQuality <= 50) {
+    contributingFactors.push(`Sleep deficit (${sleepQuality}/100 score) detected from wearable sleep tracker`);
+  }
 
   if (overallScore >= 80) {
     whyText = `CRITICAL: High temperature (${outsideTemp}°C) + Elevated Heart Rate (${hr} BPM) + Low Hydration (${hydration}%) detected. Rapid thermal accumulation present.`;
   } else if (overallScore >= 50) {
-    whyText = `Elevated heat-stress risk detected: Heart rate (${hr} BPM) is above personal baseline while environmental temperature (${outsideTemp}°C) and humidity (${humidity}%) are elevated.`;
+    whyText = `Elevated heat-stress & physiological strain: Heart rate (${hr} BPM) is above personal baseline while environmental temperature (${outsideTemp}°C) and humidity (${humidity}%) are elevated.`;
   }
 
   // Actionable Recommended Actions
@@ -107,18 +121,28 @@ export const calculateAiRisk = (vitals, environment, baseline = { heartRate: { m
       priority: 'High'
     });
   }
-  recommendedActions.push({
-    id: 'rec_3',
-    action: 'Rest Period',
-    text: 'Rest for 15-20 minutes with light elevation and cold compress',
-    icon: 'Moon',
-    priority: 'Medium'
-  });
+  if (stressScore >= 60 || fatigue >= 60) {
+    recommendedActions.push({
+      id: 'rec_3',
+      action: 'Rest & Parasympathetic Recovery',
+      text: 'Initiate 10 minutes of slow box breathing and reduce physical exertion',
+      icon: 'HeartPulse',
+      priority: 'Medium'
+    });
+  } else {
+    recommendedActions.push({
+      id: 'rec_3',
+      action: 'Rest Period',
+      text: 'Rest for 15-20 minutes with light elevation and cold compress',
+      icon: 'Moon',
+      priority: 'Medium'
+    });
+  }
 
   return {
     overallScore,
     riskLevel,
-    confidenceScore: 89,
+    confidenceScore: 92,
     heatStress,
     dehydration,
     respiratory,
