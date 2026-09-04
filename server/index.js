@@ -1,20 +1,22 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { connectMongo } from './db.js';
+import { connectDatabase, getDbStatus } from './src/config/db.js';
+import { errorHandler } from './src/middleware/errorHandler.js';
 
 // Route imports
-import authRoutes from './routes/auth.js';
-import healthRoutes from './routes/health.js';
-import environmentRoutes from './routes/environment.js';
-import aiRoutes from './routes/ai.js';
-import alertRoutes from './routes/alerts.js';
-import recommendationRoutes from './routes/recommendations.js';
-import profileRoutes from './routes/profile.js';
-import doctorRoutes from './routes/doctor.js';
-import adminRoutes from './routes/admin.js';
-import emergencyRoutes from './routes/emergency.js';
-import simulationRoutes from './routes/simulation.js';
+import authRoutes from './src/routes/authRoutes.js';
+import healthRoutes from './src/routes/healthRoutes.js';
+import environmentRoutes from './src/routes/environmentRoutes.js';
+import aiRoutes from './src/routes/aiRoutes.js';
+import alertRoutes from './src/routes/alertRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
+import profileRoutes from './src/routes/profileRoutes.js';
+import recommendationRoutes from './src/routes/recommendationRoutes.js';
+import doctorRoutes from './src/routes/doctorRoutes.js';
+import adminRoutes from './src/routes/adminRoutes.js';
+import emergencyRoutes from './src/routes/emergencyRoutes.js';
+import simulationRoutes from './src/routes/simulationRoutes.js';
 
 dotenv.config();
 
@@ -27,47 +29,50 @@ app.use(express.json());
 
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`[API] ${req.method} ${req.originalUrl} (${new Date().toLocaleTimeString()})`);
+  console.log(`[HEALTHGUARD API] ${req.method} ${req.originalUrl} (${new Date().toLocaleTimeString()})`);
   next();
 });
 
-// API Routes
+// Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/environment', environmentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/alerts', alertRoutes);
-app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/simulation', simulationRoutes);
 
-// Health check endpoint
+// Health check endpoint with DB mode & latency
 app.get('/api/status', (req, res) => {
+  const dbStatus = getDbStatus();
   res.json({
     status: 'Operational',
-    server: 'HealthGuard AI REST API Engine',
+    server: 'HealthGuard AI Enterprise REST Engine',
     uptime: process.uptime(),
+    dbStatus,
     timestamp: new Date().toISOString()
   });
 });
 
-// Global 404 handler for API routes
+// 404 handler for API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'Endpoint Not Found', path: req.originalUrl });
 });
 
 // Global Error Handler
-app.use((err, req, res, next) => {
-  console.error('API Error:', err);
-  res.status(500).json({ error: 'Internal Server Error', message: err.message });
-});
+app.use(errorHandler);
 
-// Start Server
-connectMongo().then(() => {
+// Initialize DB and start server
+connectDatabase().then((dbResult) => {
   app.listen(PORT, () => {
-    console.log(`🚀 HEALTHGUARD AI Backend Server listening on http://localhost:${PORT}`);
+    console.log(`🚀 HEALTHGUARD AI Enterprise Server listening on http://localhost:${PORT}`);
+    console.log(`📊 Database Mode: ${dbResult.mode} (${dbResult.connected ? 'MongoDB Active' : 'Persistent JSON Active'})`);
   });
 });
+
+export default app;

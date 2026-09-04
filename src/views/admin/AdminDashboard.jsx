@@ -1,13 +1,13 @@
 import React from 'react';
 import { useHealth } from '../../context/HealthContext';
-import { Settings, Users, Stethoscope, AlertTriangle, Flame, Wind, PhoneCall, Cpu, Activity, CheckCircle2 } from 'lucide-react';
+import { Settings, Users, Stethoscope, AlertTriangle, Flame, PhoneCall, Cpu, Activity, CheckCircle2, History, Database } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const { adminStats, notifications, systemServices } = useHealth();
+  const { adminStats, alerts, systemServices, auditLogs, dbMode, dbLatency } = useHealth();
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
+      {/* Header Banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass-card p-6 rounded-2xl border-slate-800">
         <div className="flex items-center gap-3">
           <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/30">
@@ -20,8 +20,8 @@ export const AdminDashboard = () => {
         </div>
 
         <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs text-purple-300 font-bold">
-          <Cpu className="w-4 h-4" />
-          <span>Express REST Engine: Active</span>
+          <Database className="w-4 h-4 text-teal-400" />
+          <span>Engine: {dbMode} ({dbLatency})</span>
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* System Status Table (Section 20) */}
+      {/* System Status Table */}
       <div className="glass-card p-6 rounded-2xl space-y-4 border-slate-800">
         <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
           <Cpu className="w-4 h-4 text-purple-400" />
@@ -94,12 +94,12 @@ export const AdminDashboard = () => {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-300">Heat Stress Alerts</span>
+              <span className="text-xs text-slate-300">Heat Stress Alerts Logged</span>
               <span className="text-base font-extrabold text-amber-400 font-mono">{adminStats.heatAlerts}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-300">Respiratory / AQI Alerts</span>
+              <span className="text-xs text-slate-300">Respiratory / AQI Alerts Logged</span>
               <span className="text-base font-extrabold text-purple-400 font-mono">{adminStats.respiratoryAlerts}</span>
             </div>
           </div>
@@ -113,16 +113,43 @@ export const AdminDashboard = () => {
           </h2>
 
           <div className="space-y-2">
-            {notifications.slice(0, 4).map(n => (
-              <div key={n.id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
+            {alerts.slice(0, 4).map(a => (
+              <div key={a.id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span>{n.type === 'critical' ? '🔴' : n.type === 'warning' ? '🟠' : '🟢'}</span>
-                  <span className="text-slate-200 font-medium">{n.title}: {n.message}</span>
+                  <span>{a.type === 'critical' ? '🔴' : a.type === 'warning' ? '🟠' : '🟢'}</span>
+                  <span className="text-slate-200 font-medium">{a.title}: {a.message}</span>
                 </div>
-                <span className="text-slate-500 font-mono text-[10px] shrink-0 ml-2">{n.timestamp ? new Date(n.timestamp).toLocaleTimeString() : 'Just now'}</span>
+                <span className="text-slate-500 font-mono text-[10px] shrink-0 ml-2">
+                  {a.timestamp ? new Date(a.timestamp).toLocaleTimeString() : 'Just now'}
+                </span>
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Audit Log Stream Section */}
+      <div className="glass-card p-6 rounded-2xl border-slate-800 space-y-3">
+        <h2 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <History className="w-4 h-4 text-purple-400" />
+          <span>System Audit & Security Logs</span>
+        </h2>
+
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {auditLogs.map((log, index) => (
+            <div key={log.id || index} className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-purple-300 font-mono">{log.actor}</span>
+                  <span className="text-slate-200">{log.action}</span>
+                </div>
+                <p className="text-[11px] text-slate-400">{log.details}</p>
+              </div>
+              <span className="text-[10px] font-mono text-slate-500">
+                {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'Recent'}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

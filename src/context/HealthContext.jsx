@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { apiService } from '../services/api';
 
 const HealthContext = createContext();
 
@@ -10,19 +11,26 @@ export const HealthProvider = ({ children }) => {
   const [adminTab, setAdminTab] = useState('overview');
   const [selectedPatientId, setSelectedPatientId] = useState('PAT-101');
 
-  // Backend Connection Status
+  // Backend Connection & Database Status
   const [isBackendConnected, setIsBackendConnected] = useState(true);
+  const [dbMode, setDbMode] = useState('Demo JSON Store');
+  const [dbLatency, setDbLatency] = useState('2ms');
   const [loading, setLoading] = useState(true);
+  const [lastSyncTime, setLastSyncTime] = useState('Just now');
 
-  // Simulation Preset State
+  // Active Simulation State
   const [activeSimulation, setActiveSimulation] = useState('normal');
 
   // User Vitals State
   const [vitals, setVitals] = useState({
     heartRate: 82,
+    heartRateChange: '+0%',
     spO2: 97,
+    spO2Change: '0%',
     temp: 36.8,
+    tempChange: 'Optimal',
     hydration: 78,
+    hydrationChange: 'Good',
     activity: 6240,
     sleep: '7h 20m',
     healthScore: 82,
@@ -32,10 +40,12 @@ export const HealthProvider = ({ children }) => {
 
   // Baseline Benchmark Data
   const [baseline, setBaseline] = useState({
-    heartRate: { min: 72, max: 88, unit: 'BPM' },
-    spO2: { min: 95, max: 100, unit: '%' },
-    temp: { min: 36.5, max: 37.2, unit: '°C' },
-    hydration: { min: 60, max: 100, unit: '%' },
+    heartRate: { min: 72, max: 88, unit: 'BPM', average: 78 },
+    spO2: { min: 95, max: 100, unit: '%', average: 97.5 },
+    temp: { min: 36.5, max: 37.2, unit: '°C', average: 36.8 },
+    hydration: { min: 60, max: 100, unit: '%', average: 80 },
+    activity: { goal: 8000, average: 7400 },
+    sleep: { target: '8h', average: '7.5h' }
   });
 
   // Environmental Metrics State
@@ -47,12 +57,14 @@ export const HealthProvider = ({ children }) => {
     heatIndex: 43,
     weatherCondition: 'Very Hot & Humid',
     pollutionLevel: 'Unhealthy for Sensitive Groups',
+    zone: 'Sector 4, Central Urban Hub'
   });
 
   // AI Risk Assessment Engine State
   const [aiRisk, setAiRisk] = useState({
     overallScore: 72,
     riskLevel: 'MODERATE RISK',
+    confidenceScore: 89,
     heatStress: 72,
     dehydration: 61,
     fatigue: 48,
@@ -63,13 +75,14 @@ export const HealthProvider = ({ children }) => {
       'Elevated heart rate (+10 BPM above baseline)',
       'High environmental temperature (38°C)',
       'High ambient humidity (72%)',
-      'Hydration level at 78%'
+      'Hydration status at 78%'
     ],
     recommendedActions: [
-      { id: 'rec_1', action: 'Hydrate', text: 'Drink 500ml water immediately', icon: 'Droplets' },
-      { id: 'rec_2', action: 'Move to Cooler Area', text: 'Seek air-conditioned shelter', icon: 'Thermometer' },
-      { id: 'rec_3', action: 'Rest', text: 'Rest for 15 minutes in shade', icon: 'Moon' }
-    ]
+      { id: 'rec_1', action: 'Hydrate', text: 'Drink 500ml water immediately', icon: 'Droplets', priority: 'High' },
+      { id: 'rec_2', action: 'Move to Cooler Area', text: 'Seek air-conditioned shelter', icon: 'Thermometer', priority: 'High' },
+      { id: 'rec_3', action: 'Rest', text: 'Rest for 15 minutes in shade', icon: 'Moon', priority: 'Medium' }
+    ],
+    disclaimer: 'Prototype AI Risk Assessment — Not a Medical Diagnosis'
   });
 
   // Emergency & Fall Detection State
@@ -79,20 +92,21 @@ export const HealthProvider = ({ children }) => {
   const [emergencyEvents, setEmergencyEvents] = useState([]);
 
   // Emergency Contacts
-  const [emergencyContacts] = useState([
+  const [emergencyContacts, setEmergencyContacts] = useState([
     { name: 'Father', phone: '+91 98765 43210', relation: 'Primary Contact' },
     { name: 'Mother', phone: '+91 98765 43211', relation: 'Secondary Contact' },
     { name: 'Dr. Anita Roy', phone: '+91 94432 10987', relation: 'Cardiologist' }
   ]);
 
-  // Notifications Feed
+  // Notifications & Alerts Feeds
   const [notifications, setNotifications] = useState([]);
+  const [alerts, setAlerts] = useState([]);
 
   // Doctor Patients State
   const [patients, setPatients] = useState([]);
   const [clinicalNotes, setClinicalNotes] = useState([]);
 
-  // Admin Dashboard Global Statistics
+  // Admin Dashboard Statistics
   const [adminStats, setAdminStats] = useState({
     totalUsers: 1248,
     activeUsers: 842,
@@ -111,34 +125,43 @@ export const HealthProvider = ({ children }) => {
     { name: 'Notification Service', status: 'Operational', latency: '15ms' }
   ]);
 
-  // FETCH ALL DATA FROM EXPRESS REST API
+  const [auditLogs, setAuditLogs] = useState([]);
+
+  // FETCH ALL DATA FROM BACKEND REST API
   const fetchAllData = useCallback(async () => {
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-        'x-demo-role': role.toUpperCase()
-      };
-
-      // Concurrent REST API calls
       const [
+        statusRes,
         healthRes,
         envRes,
         aiRes,
         alertsRes,
+        notifsRes,
         patientsRes,
         adminRes,
         notesRes,
-        eventsRes
+        eventsRes,
+        auditRes
       ] = await Promise.all([
-        fetch('/api/health/current', { headers }).then(r => r.ok ? r.json() : null),
-        fetch('/api/environment/current', { headers }).then(r => r.ok ? r.json() : null),
-        fetch('/api/ai/risk', { headers }).then(r => r.ok ? r.json() : null),
-        fetch('/api/alerts', { headers }).then(r => r.ok ? r.json() : null),
-        fetch('/api/doctor/patients', { headers: { ...headers, 'x-demo-role': 'DOCTOR' } }).then(r => r.ok ? r.json() : null),
-        fetch('/api/admin/statistics', { headers: { ...headers, 'x-demo-role': 'ADMIN' } }).then(r => r.ok ? r.json() : null),
-        fetch('/api/doctor/patients/PAT-101', { headers: { ...headers, 'x-demo-role': 'DOCTOR' } }).then(r => r.ok ? r.json() : null),
-        fetch('/api/emergency/events', { headers }).then(r => r.ok ? r.json() : null)
+        apiService.getSystemStatus().catch(() => null),
+        apiService.getCurrentHealth(role).catch(() => null),
+        apiService.getEnvironment(role).catch(() => null),
+        apiService.getAiRisk(role).catch(() => null),
+        apiService.getAlerts(role).catch(() => null),
+        apiService.getNotifications(role).catch(() => null),
+        apiService.getDoctorPatients().catch(() => null),
+        apiService.getAdminStatistics().catch(() => null),
+        apiService.getDoctorPatientDetails(selectedPatientId).catch(() => null),
+        apiService.getEmergencyEvents(role).catch(() => null),
+        apiService.getAdminAuditLogs().catch(() => null)
       ]);
+
+      if (statusRes) {
+        if (statusRes.dbStatus) {
+          setDbMode(statusRes.dbStatus.mode);
+          setDbLatency(statusRes.dbStatus.latency);
+        }
+      }
 
       if (healthRes && healthRes.vitals) {
         setVitals(healthRes.vitals);
@@ -151,7 +174,10 @@ export const HealthProvider = ({ children }) => {
         setAiRisk(aiRes.assessment);
       }
       if (alertsRes && alertsRes.alerts) {
-        setNotifications(alertsRes.alerts);
+        setAlerts(alertsRes.alerts);
+      }
+      if (notifsRes && notifsRes.notifications) {
+        setNotifications(notifsRes.notifications);
       }
       if (patientsRes && patientsRes.patients) {
         setPatients(patientsRes.patients);
@@ -166,15 +192,19 @@ export const HealthProvider = ({ children }) => {
       if (eventsRes && eventsRes.events) {
         setEmergencyEvents(eventsRes.events);
       }
+      if (auditRes && auditRes.auditLogs) {
+        setAuditLogs(auditRes.auditLogs);
+      }
 
       setIsBackendConnected(true);
+      setLastSyncTime(new Date().toLocaleTimeString());
     } catch (err) {
-      console.warn('Backend polling error:', err);
+      console.warn('API polling update error:', err);
       setIsBackendConnected(false);
     } finally {
       setLoading(false);
     }
-  }, [role]);
+  }, [role, selectedPatientId]);
 
   // Initial fetch and 2-second background sync polling
   useEffect(() => {
@@ -183,7 +213,7 @@ export const HealthProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [fetchAllData]);
 
-  // Handle Fall Detection Timer Countdown
+  // Fall Detection Countdown Logic
   useEffect(() => {
     let timer;
     if (fallModalOpen && fallTimer > 0) {
@@ -191,74 +221,75 @@ export const HealthProvider = ({ children }) => {
         setFallTimer(prev => prev - 1);
       }, 1000);
     } else if (fallModalOpen && fallTimer === 0) {
-      triggerSosEmergency('Fall detected! No response from user within 10 seconds.');
+      triggerSosEmergency('Fall detected! No user response within 10 seconds.');
     }
     return () => clearInterval(timer);
   }, [fallModalOpen, fallTimer]);
 
-  // REST API SIMULATION CONTROLLERS
-  const triggerSimulationEndpoint = async (endpoint, presetName) => {
-    setActiveSimulation(presetName);
-    try {
-      const res = await fetch(`/api/simulation/${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (res.ok) {
-        await fetchAllData();
-      }
-    } catch (err) {
-      console.error(`Simulation API error (${endpoint}):`, err);
-    }
+  // SIMULATION HANDLERS
+  const simulateHeatStress = async () => {
+    setActiveSimulation('heat_stress');
+    await apiService.triggerSimulation('heat-stress');
+    await fetchAllData();
   };
 
-  const simulateHeatStress = () => triggerSimulationEndpoint('heat-stress', 'heat_stress');
-  const simulateHighAQI = () => triggerSimulationEndpoint('high-aqi', 'high_aqi');
-  const triggerFallSimulation = () => {
-    triggerSimulationEndpoint('fall', 'fall_detected');
+  const simulateHighAQI = async () => {
+    setActiveSimulation('high_aqi');
+    await apiService.triggerSimulation('high-aqi');
+    await fetchAllData();
+  };
+
+  const triggerFallSimulation = async () => {
+    setActiveSimulation('fall_detected');
     setFallTimer(10);
     setFallModalOpen(true);
     setSosSent(false);
+    await apiService.triggerSimulation('fall');
   };
-  const normalizeVitals = () => triggerSimulationEndpoint('normalize', 'normal');
-  const simulateBaselineShift = () => triggerSimulationEndpoint('baseline-shift', 'baseline_shift');
-  const resetSimulation = () => triggerSimulationEndpoint('reset', 'normal');
 
-  // REST API EMERGENCY CONTROLLERS
+  const normalizeVitals = async () => {
+    setActiveSimulation('normal');
+    await apiService.triggerSimulation('normalize');
+    await fetchAllData();
+  };
+
+  const simulateBaselineShift = async () => {
+    setActiveSimulation('baseline_shift');
+    await apiService.triggerSimulation('baseline-shift');
+    await fetchAllData();
+  };
+
+  const resetSimulation = async () => {
+    setActiveSimulation('normal');
+    setFallModalOpen(false);
+    setSosSent(false);
+    await apiService.triggerSimulation('reset');
+    await fetchAllData();
+  };
+
+  // EMERGENCY HANDLERS
   const triggerSosEmergency = async (reason = 'Manual SOS Alert Sent by User') => {
     setFallModalOpen(false);
     setSosSent(true);
-
-    try {
-      const res = await fetch('/api/emergency/sos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason })
-      });
-      if (res.ok) {
-        await fetchAllData();
-      }
-    } catch (err) {
-      console.error('Emergency SOS API error:', err);
-    }
+    await apiService.triggerManualSos(reason);
+    await fetchAllData();
   };
 
-  const addClinicalNote = async (text, patientId = 'PAT-101') => {
-    try {
-      const res = await fetch('/api/doctor/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-demo-role': 'DOCTOR'
-        },
-        body: JSON.stringify({ patientId, text })
-      });
-      if (res.ok) {
-        await fetchAllData();
-      }
-    } catch (err) {
-      console.error('Add clinical note error:', err);
-    }
+  // ALERT LIFECYCLE HANDLERS
+  const acknowledgeAlert = async (id) => {
+    await apiService.acknowledgeAlert(id, role);
+    await fetchAllData();
+  };
+
+  const resolveAlert = async (id) => {
+    await apiService.resolveAlert(id, role);
+    await fetchAllData();
+  };
+
+  // DOCTOR CLINICAL NOTE
+  const addClinicalNote = async (text, patientId = selectedPatientId) => {
+    await apiService.addClinicalNote(patientId, text);
+    await fetchAllData();
   };
 
   return (
@@ -269,7 +300,10 @@ export const HealthProvider = ({ children }) => {
       adminTab, setAdminTab,
       selectedPatientId, setSelectedPatientId,
       isBackendConnected,
+      dbMode,
+      dbLatency,
       loading,
+      lastSyncTime,
       activeSimulation,
       vitals, setVitals,
       baseline, setBaseline,
@@ -277,15 +311,17 @@ export const HealthProvider = ({ children }) => {
       aiRisk, setAiRisk,
       emergencyContacts,
       notifications, setNotifications,
+      alerts, setAlerts,
       patients, setPatients,
       adminStats, setAdminStats,
       systemServices,
+      auditLogs,
       clinicalNotes, addClinicalNote,
       emergencyEvents,
       fallModalOpen, setFallModalOpen,
       fallTimer, setFallTimer,
       sosSent, setSosSent,
-      // API Simulation triggers
+      // Actions
       simulateHeatStress,
       simulateHighAQI,
       triggerFallSimulation,
@@ -293,6 +329,8 @@ export const HealthProvider = ({ children }) => {
       simulateBaselineShift,
       resetSimulation,
       triggerSosEmergency,
+      acknowledgeAlert,
+      resolveAlert,
       fetchAllData
     }}>
       {children}
