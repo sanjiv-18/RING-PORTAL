@@ -1,0 +1,284 @@
+{
+  "users": [
+    {
+      "id": "usr_sanjiv",
+      "name": "Sanjiv Venkat",
+      "email": "sanjiv@healthguard.ai",
+      "role": "USER",
+      "age": 34,
+      "gender": "Male",
+      "height": "178 cm",
+      "weight": "74 kg",
+      "bloodType": "O+",
+      "conditions": "Mild Seasonal Asthma, Heat Sensitivity",
+      "locationPermission": true,
+      "dataSharing": false,
+      "notificationsEnabled": true
+    },
+    {
+      "id": "doc_anita",
+      "name": "Dr. Anita Roy",
+      "email": "dr.anita@healthguard.ai",
+      "role": "DOCTOR",
+      "specialty": "Cardiology & Environmental Medicine"
+    },
+    {
+      "id": "adm_system",
+      "name": "System Admin",
+      "email": "admin@healthguard.ai",
+      "role": "ADMIN"
+    }
+  ],
+  "simulationState": {
+    "activePreset": "baseline_shift",
+    "lastUpdated": "2026-09-04T10:16:43.635Z"
+  },
+  "healthReading": {
+    "heartRate": 108,
+    "spO2": 94,
+    "temp": 38.4,
+    "hydration": 78,
+    "activity": 6240,
+    "sleep": "7h 20m",
+    "healthScore": 82,
+    "statusText": "Significant baseline deviation detected",
+    "statusSeverity": "warning",
+    "updatedAt": "2026-09-04T10:16:42.255Z"
+  },
+  "healthBaseline": {
+    "heartRate": {
+      "min": 72,
+      "max": 88,
+      "unit": "BPM"
+    },
+    "spO2": {
+      "min": 95,
+      "max": 100,
+      "unit": "%"
+    },
+    "temp": {
+      "min": 36.5,
+      "max": 37.2,
+      "unit": "°C"
+    },
+    "hydration": {
+      "min": 60,
+      "max": 100,
+      "unit": "%"
+    }
+  },
+  "environmentalReading": {
+    "outsideTemp": 32,
+    "humidity": 55,
+    "aqi": 65,
+    "uvIndex": 4,
+    "heatIndex": 33,
+    "weatherCondition": "Pleasant & Warm",
+    "pollutionLevel": "Good",
+    "updatedAt": "2026-09-04T10:16:42.255Z"
+  },
+  "riskAssessment": {
+    "overallScore": 22,
+    "riskLevel": "LOW RISK",
+    "heatStress": 18,
+    "dehydration": 25,
+    "fatigue": 20,
+    "respiratory": 15,
+    "cardiac": 10,
+    "whyText": "All vital metrics and environmental indicators are within normal bounds.",
+    "contributingFactors": [
+      "Normal Heart Rate (82 BPM)",
+      "Optimal SpO2 Saturation (97%)",
+      "Normal Body Temperature (36.8°C)",
+      "Clean Air Quality (65 AQI)"
+    ],
+    "recommendedActions": [
+      {
+        "id": "rec_1",
+        "action": "Maintain Hydration",
+        "text": "Drink water regularly throughout the day",
+        "icon": "Droplets"
+      },
+      {
+        "id": "rec_2",
+        "action": "Daily Walk",
+        "text": "Enjoy light outdoor exercise",
+        "icon": "Activity"
+      }
+    ]
+  },
+  "patients": [
+    {
+      "id": "PAT-101",
+      "userId": "usr_sanjiv",
+      "name": "Sanjiv Venkat",
+      "age": 34,
+      "gender": "Male",
+      "heartRate": 82,
+      "spO2": 97,
+      "temp": 36.8,
+      "hydration": 78,
+      "riskLevel": "Low",
+      "heatStress": 18,
+      "healthScore": 82,
+      "lastActive": "2m ago",
+      "alert": "Normal Baseline"
+    },
+    {
+      "id": "PAT-102",
+      "userId": "usr_priya",
+      "name": "Priya Sharma",
+      "age": 29,
+      "gender": "Female",
+      "heartRate": 98,
+      "spO2": 94,
+      "temp": 37.4,
+      "hydration": 55,
+      "riskLevel": "High",
+      "heatStress": 88,
+      "healthScore": 68,
+      "lastActive": "5m ago",
+      "alert": "Elevated HR & Dehydration"
+    },
+    {
+      "id": "PAT-103",
+      "userId": "usr_rajesh",
+      "name": "Rajesh Kumar",
+      "age": 52,
+      "gender": "Male",
+      "heartRate": 74,
+      "spO2": 98,
+      "temp": 36.6,
+      "hydration": 85,
+      "riskLevel": "Low",
+      "heatStress": 18,
+      "healthScore": 92,
+      "lastActive": "12m ago",
+      "alert": "Normal Baseline"
+    },
+    {
+      "id": "PAT-104",
+      "userId": "usr_anita",
+      "name": "Anita Desai",
+      "age": 61,
+      "gender": "Female",
+      "heartRate": 104,
+      "spO2": 92,
+      "temp": 38.1,
+      "hydration": 40,
+      "riskLevel": "Critical",
+      "heatStress": 94,
+      "healthScore": 54,
+      "lastActive": "Just now",
+      "alert": "Respiratory Distress & High Fever"
+    }
+  ],
+  "alerts": [
+    {
+      "id": "alt_1788517002257",
+      "category": "Recovery",
+      "type": "success",
+      "title": "🟢 Health Indicators Returned to Baseline",
+      "message": "All vital signs normalized for user Sanjiv.",
+      "timestamp": "2026-09-04T10:16:42.257Z"
+    },
+    {
+      "id": "alt_1788516998098",
+      "category": "Environmental",
+      "type": "warning",
+      "title": "🌫️ AQI Reached Hazardous Level",
+      "message": "Air Quality Index spiked to 215 AQI in Sector 4.",
+      "timestamp": "2026-09-04T10:16:38.098Z"
+    },
+    {
+      "id": "alt_1788512260892",
+      "category": "Environmental",
+      "type": "critical",
+      "title": "🔥 Heat-Stress Risk Increased",
+      "message": "High temperature (41°C) & elevated HR (108 BPM) recorded for user Sanjiv.",
+      "timestamp": "2026-09-04T08:57:40.892Z"
+    },
+    {
+      "id": "alt_1",
+      "category": "Health",
+      "type": "critical",
+      "title": "Abnormal Heart Rate",
+      "message": "Heart rate exceeded baseline during peak thermal hours.",
+      "timestamp": "2026-09-04T08:44:56.614Z"
+    },
+    {
+      "id": "alt_2",
+      "category": "Environmental",
+      "type": "warning",
+      "title": "Heat Stress Warning",
+      "message": "High outside temperature (38°C) detected in your zone.",
+      "timestamp": "2026-09-04T08:19:56.614Z"
+    },
+    {
+      "id": "alt_3",
+      "category": "Environmental",
+      "type": "warning",
+      "title": "Hazardous Air Quality",
+      "message": "AQI increased to 142. Take precaution outdoors.",
+      "timestamp": "2026-09-04T06:54:56.614Z"
+    },
+    {
+      "id": "alt_4",
+      "category": "Recovery",
+      "type": "info",
+      "title": "Health Indicators Restored",
+      "message": "Hydration level improved after water intake.",
+      "timestamp": "2026-09-04T04:54:56.614Z"
+    }
+  ],
+  "emergencyEvents": [
+    {
+      "id": "emg_1",
+      "userId": "usr_sanjiv",
+      "patientName": "Sanjiv Venkat",
+      "type": "Fall Detected",
+      "status": "Resolved",
+      "timestamp": "2026-09-03T08:54:56.614Z",
+      "location": "Sector 4, Central Urban Hub"
+    }
+  ],
+  "privacyAuditLog": [
+    {
+      "id": "prv_1",
+      "timestamp": "2026-09-04T08:54:56.614Z",
+      "action": "On-device local risk inference executed",
+      "details": "Zero cloud data transmitted"
+    },
+    {
+      "id": "prv_2",
+      "timestamp": "2026-09-04T07:54:56.614Z",
+      "action": "Location permission requested for micro-weather",
+      "details": "Permission granted locally"
+    }
+  ],
+  "clinicalNotes": [
+    {
+      "id": "note_1",
+      "patientId": "PAT-101",
+      "doctor": "Dr. Anita Roy",
+      "date": "2026-09-02",
+      "text": "Patient shows good response to hydration regimen. Recommend monitoring during midday heat."
+    },
+    {
+      "id": "note_2",
+      "patientId": "PAT-101",
+      "doctor": "Dr. Vikram Patel",
+      "date": "2026-08-28",
+      "text": "Baseline heart rate is slightly elevated during summer months. Edge AI tracking activated."
+    }
+  ],
+  "adminStats": {
+    "totalUsers": 1248,
+    "activeUsers": 842,
+    "highRiskUsers": 38,
+    "heatAlerts": 85,
+    "respiratoryAlerts": 53,
+    "sosEvents": 6,
+    "totalDoctors": 42
+  }
+}
