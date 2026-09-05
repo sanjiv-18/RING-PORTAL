@@ -1,6 +1,6 @@
 /**
  * Centralized HealthGuard API Service Client
- * Handles headers, role injection, timeout resilience, and unified responses.
+ * Handles headers, JWT auth tokens, role injection, timeout resilience, and unified responses.
  */
 
 const API_BASE = '/api';
@@ -22,10 +22,60 @@ const fetchWithTimeout = async (url, options = {}, timeout = 6000) => {
 };
 
 export const apiService = {
-  getHeaders: (role = 'USER') => ({
-    'Content-Type': 'application/json',
-    'x-demo-role': role.toUpperCase()
-  }),
+  getHeaders: (role = 'USER') => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('healthguard_token') : null;
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-demo-role': role.toUpperCase()
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  },
+
+  // Authentication API Methods
+  async login(email, password) {
+    const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      localStorage.setItem('healthguard_token', data.token);
+    }
+    return data;
+  },
+
+  async register(name, email, password, role = 'USER') {
+    const res = await fetchWithTimeout(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      localStorage.setItem('healthguard_token', data.token);
+    }
+    return data;
+  },
+
+  async getCurrentUser() {
+    const res = await fetchWithTimeout(`${API_BASE}/auth/me`, {
+      headers: this.getHeaders()
+    });
+    return res.ok ? res.json() : null;
+  },
+
+  async logout() {
+    localStorage.removeItem('healthguard_token');
+    const res = await fetchWithTimeout(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      headers: this.getHeaders()
+    });
+    return res.ok ? res.json() : null;
+  },
 
   // System & Health Status
   async getSystemStatus() {
